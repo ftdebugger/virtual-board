@@ -46,7 +46,7 @@
 
     <application android:name="ApiDemosApplication"
             android:label="@string/activity_sample_code"
-            android:icon="@drawable/app_sample_code"
+            android:icon="@drawable/butter"
             android:hardwareAccelerated="true">
 
         <!-- This is how we can request a library but still allow the app
