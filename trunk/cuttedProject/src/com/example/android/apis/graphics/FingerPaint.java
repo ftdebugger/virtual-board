@@ -128,17 +128,17 @@ public class FingerPaint extends GraphicsActivity implements
 			mCanvas.drawPath(mPath, mPaint);
 			// kill this so we don't double draw
 //			mPath.reset();
-			try {
-				   String path = Environment.getExternalStorageDirectory().toString();
-			       File file = new File(path, "FitnessGirl.bmp");
-			       FileOutputStream out = new FileOutputStream(file);
-			       mBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
-			       out.flush();
-			       out.close();
-			       MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
-			} catch (Exception e) {
-			       e.printStackTrace();
-			}
+//			try {
+//				   String path = Environment.getExternalStorageDirectory().toString();
+//			       File file = new File(path, "FitnessGirl.bmp");
+//			       FileOutputStream out = new FileOutputStream(file);
+//			       mBitmap.compress(Bitmap.CompressFormat.PNG, 90, out);
+//			       out.flush();
+//			       out.close();
+//			       MediaStore.Images.Media.insertImage(getContentResolver(),file.getAbsolutePath(),file.getName(),file.getName());
+//			} catch (Exception e) {
+//			       e.printStackTrace();
+//			}
 		}
 
 	
