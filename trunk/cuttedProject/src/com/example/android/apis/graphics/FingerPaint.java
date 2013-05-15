@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 
 import com.example.android.apis.R;
+import com.henry.example.Runner;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
@@ -126,6 +128,7 @@ public class FingerPaint extends GraphicsActivity implements
 			mPath.lineTo(mX, mY);
 			// commit the path to our offscreen
 			mCanvas.drawPath(mPath, mPaint);
+			
 			// kill this so we don't double draw
 //			mPath.reset();
 //			try {
@@ -146,7 +149,7 @@ public class FingerPaint extends GraphicsActivity implements
         public boolean onTouchEvent(MotionEvent event) {
             float x = event.getX();
             float y = event.getY();
-
+            Runner.main();
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     touch_start(x, y);
