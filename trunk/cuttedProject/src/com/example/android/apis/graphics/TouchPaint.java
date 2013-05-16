@@ -366,7 +366,8 @@ public class TouchPaint extends GraphicsActivity {
             }
 
             final int action = event.getActionMasked();
-            if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_HOVER_MOVE) {
+            if (action == MotionEvent.ACTION_DOWN || action == MotionEvent.ACTION_MOVE
+                    || action == MotionEvent.ACTION_HOVER_MOVE) {
                 final int N = event.getHistorySize();
                 final int P = event.getPointerCount();
                 for (int i = 0; i < N; i++) {
@@ -396,23 +397,6 @@ public class TouchPaint extends GraphicsActivity {
                 mCurX = event.getX();
                 mCurY = event.getY();
             }
-            
-
-            switch (event.getAction()) {
-            case MotionEvent.ACTION_MOVE:
-            	 paint(getPaintModeForTool(event.getToolType(1), mode),
-                         event.getX(),
-                         event.getY(),
-                         event.getPressure(),
-                         event.getTouchMajor(),
-                         event.getTouchMinor(),
-                         event.getOrientation(),
-                         event.getAxisValue(MotionEvent.AXIS_DISTANCE),
-                         event.getAxisValue(MotionEvent.AXIS_TILT));
-            	break;
-            default: break;
-            }
-            
             return true;
         }
 

@@ -42,7 +42,7 @@
     </style>
 
     <!-- Base application theme is the default theme. -->
-    <style name="BadTheme" parent="@android:style/Theme">
+    <style name="BadTheme" parent="@android:style/Theme.Holo.Light.NoActionBar">
     </style>
 
     <!-- Variation on our application theme that forces a plain
@@ -60,7 +60,7 @@
     <!-- A theme for a custom dialog appearance.  Here we use an ugly
          custom frame. -->
     <style name="Theme.CustomDialog" parent="android:style/Theme.Dialog">
-        <item name="android:windowBackground">@drawable/blue</item>
+        <item name="android:windowBackground">@drawable/filled_box</item>
     </style>
 
     <!-- A theme that has a wallpaper background.  Here we explicitly specify
@@ -105,19 +105,19 @@
     </style>
 
     <style name="ImageView120dpi">
-        <item name="android:src">@drawable/butter</item>
+        <item name="android:src">@drawable/stylogo120dpi</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="ImageView160dpi">
-        <item name="android:src">@drawable/blue</item>
+        <item name="android:src">@drawable/stylogo160dpi</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
     <style name="ImageView240dpi">
-        <item name="android:src">@drawable/butter</item>
+        <item name="android:src">@drawable/stylogo240dpi</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
