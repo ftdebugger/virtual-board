@@ -15,7 +15,7 @@ import com.henry.dcoll.dlist.IDListListener;
 
 public class Runner {
 	public static final String TAG = "chatlibrary";
-	private static class MyDListListener implements IDListListener {
+	public static class MyDListListener implements IDListListener {
 		@Override
 		public void dListPartFound(String owner) {
 			Log.i(TAG,"I found part of D-list. Owner: " + owner);
@@ -40,8 +40,8 @@ public class Runner {
 				DSpaceController.disconnect();
 			}
 		});
-		
-		DSpaceController.connect(nickname);
+
+		DSpaceController.connect(String.valueOf((new Random()).nextInt()));
 		
 		List<IMyEntity> myList = new ArrayList<IMyEntity>();
 		myList.add(new MyEntity(nickname + ":line2", 54));
@@ -55,18 +55,16 @@ public class Runner {
 				.createNewDList("mySpace", "list1", //space namelist logger mylist interface.name
 						new MyDListListener(), myList,
 						IMyEntity.class);
-		DSpaceController.connect(nickname);
 		
 		String line;
 		while(true){
-			DSpaceController.connect(String.valueOf((new Random()).nextDouble()));
 			try {
 				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			DSpaceController.disconnect();
+			Log.i(TAG,DSpaceController.getPeerContainer().getPeers().toString());
 		}
 //		while (true) {
 //			if (in.hasNext()) {
