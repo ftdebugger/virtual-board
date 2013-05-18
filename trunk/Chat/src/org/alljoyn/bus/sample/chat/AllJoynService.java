@@ -1271,6 +1271,5 @@ public class AllJoynService extends Service implements Observer {
     static {
         Log.i(TAG, "System.loadLibrary(\"alljoyn_java\")");
         System.loadLibrary("alljoyn_java");
-        Runner.main();
     }
 }

@@ -16,10 +16,14 @@
 
 package org.alljoyn.bus.sample.chat;
 
+import java.util.Random;
+
 import org.alljoyn.bus.sample.chat.ChatApplication;
 import org.alljoyn.bus.sample.chat.Observable;
 import org.alljoyn.bus.sample.chat.Observer;
 import org.alljoyn.bus.sample.chat.DialogBuilder;
+
+import com.henry.dcoll.controller.DSpaceController;
 
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,11 +31,13 @@ import android.os.Message;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 
 import android.view.View;
 
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.util.Log;
 

@@ -21,12 +21,25 @@ import org.alljoyn.bus.sample.chat.Observable;
 import org.alljoyn.bus.sample.chat.Observer;
 import org.alljoyn.bus.sample.chat.DialogBuilder;
 
+import com.henry.dcoll.controller.DSpaceController;
+import com.henry.dcoll.dlist.DList;
+import com.henry.dcoll.main.IMyEntity;
+import com.henry.dcoll.main.MyEntity;
+import com.henry.dcoll.main.Runner.MyDListListener;
+import com.nikolay.container.IImageContainer;
+import com.nikolay.container.ImageContainer;
+
 import android.os.Handler;
 import android.os.Message;
 import android.os.Bundle;
+import android.os.Parcelable;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import android.view.KeyEvent;
 import android.view.View;
@@ -35,17 +48,39 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import android.util.Log;
 
+import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class UseActivity extends Activity implements Observer {
     private static final String TAG = "chat.UseActivity";
-    
-    public void onCreate(Bundle savedInstanceState) {
+    DList<IMyEntity> dLists = null;
+    @SuppressLint("NewApi")
+	public void onCreate(Bundle savedInstanceState) {
+    	String nickname=android.os.Build.MODEL.replace(" ","");
+    	DSpaceController.connect(android.os.Build.MODEL.replace(" ",""));
+		Bitmap image = null;
+		image = BitmapFactory.decodeResource(getResources(), R.drawable.icon);
+		ByteArrayOutputStream stream = new ByteArrayOutputStream();
+		image.compress(Bitmap.CompressFormat.PNG, 100, stream);
+		
+		
+		List<IImageContainer> myList = new ArrayList<IImageContainer>();
+		myList.add(new ImageContainer(stream.toByteArray()));
+		
+		final DList<IImageContainer> dLists = DSpaceController
+				.createNewDList("mySpace", "list1", //space namelist logger mylist interface.name
+						new MyDListListener(), myList,
+						IImageContainer.class);
+		
         Log.i(TAG, "onCreate()");
     	super.onCreate(savedInstanceState);
         setContentView(R.layout.use);
@@ -70,7 +105,17 @@ public class UseActivity extends Activity implements Observer {
         mJoinButton = (Button)findViewById(R.id.useJoin);
         mJoinButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                showDialog(DIALOG_JOIN_ID);
+
+            	Context context = getApplicationContext();
+            	List<IImageContainer> list =  dLists.get((!android.os.Build.MODEL.equals("MediaPad 10 FHD")?"MediaPad10FHD":"GT-I9300"));;
+//            	CharSequence text = list == null ? "empty" : (CharSequence) list.toString(); 
+//            	int duration = Toast.LENGTH_LONG;
+            	ImageView view = (ImageView)findViewById(R.id.imageView1);
+            	view.setImageBitmap((Bitmap)BitmapFactory.decodeByteArray(list.get(0).getByteArray(),0,list.get(0).getByteArray().length));
+//            	Toast toast = Toast.makeText(context,text, duration);
+//            	toast.show();
+            	
+//                showDialog(DIALOG_JOIN_ID);
         	}
         });
 
