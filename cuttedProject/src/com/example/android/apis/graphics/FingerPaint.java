@@ -202,9 +202,9 @@ public class FingerPaint extends GraphicsActivity implements
 						fetched = false;
 					} else {
 						fetched = true;
+						activeSeed = peer.getPeerName();
 						break;
 					}
-					activeSeed = peer.getPeerName();
 				}
 				if (fetched) {
 					drawRemoteEvents(events);
