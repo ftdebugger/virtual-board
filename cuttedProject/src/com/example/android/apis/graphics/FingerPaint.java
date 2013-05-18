@@ -17,17 +17,19 @@
 package com.example.android.apis.graphics;
 
 import java.util.ArrayList;
+
 import java.util.List;
 
 import com.example.android.apis.R;
 import com.henry.dcoll.controller.DSpaceController;
 import com.henry.dcoll.dlist.DList;
+import com.henry.dcoll.dlist.IDListListener;
 import com.henry.dcoll.main.IMyEntity;
 import com.henry.dcoll.main.Runner;
 import com.henry.dcoll.main.Runner.MyDListListener;
 import com.henry.dcoll.peer.PeerInfo;
-import com.nikolay.container.IMyMotionEvent;
-import com.nikolay.container.MyMotionEvent;
+import com.nikolay.vb.container.IMyMotionEvent;
+import com.nikolay.vb.container.MyMotionEvent;
 
 import android.content.Context;
 import android.graphics.*;
@@ -76,6 +78,20 @@ public class FingerPaint extends GraphicsActivity implements
 
 	public class MyView extends View {
 
+		public class DSpaceListListener implements IDListListener {
+
+			@Override
+			public void dListPartFound(String owner) {
+				Log.i(Runner.TAG, "I found part of D-list. Owner: " + owner);
+			}
+
+			@Override
+			public void dListPartLost(String owner) {
+				Log.i(Runner.TAG, "I lost part of D-list. Owner: " + owner);
+
+			}
+		}
+
 		private static final float MINP = 0.25f;
 		private static final float MAXP = 0.75f;
 
@@ -83,6 +99,7 @@ public class FingerPaint extends GraphicsActivity implements
 		private Canvas mCanvas;
 		private Path mPath;
 		private Paint mBitmapPaint;
+		private String activeSeed = null;
 		DList<IMyMotionEvent> dList;
 
 		public MyView(Context c) {
@@ -90,7 +107,7 @@ public class FingerPaint extends GraphicsActivity implements
 			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
 			dList = DSpaceController.createNewDList("mySpace",
 					"list1", // space namelist logger mylist interface.name
-					new MyDListListener(), new ArrayList<IMyMotionEvent>(),
+					new DSpaceListListener(), new ArrayList<IMyMotionEvent>(),
 					IMyMotionEvent.class);
 
 			mPath = new Path();
@@ -166,11 +183,10 @@ public class FingerPaint extends GraphicsActivity implements
 			}
 			return true;
 		}
-		
-		
-		public List<IMyMotionEvent> getRemoteEvents(){
+
+		public List<IMyMotionEvent> getRemoteEvents() {
 			List<IMyMotionEvent> events = null;
-			
+
 			try {
 				List<PeerInfo> peers = new ArrayList<PeerInfo>();
 				peers.addAll(DSpaceController.getPeerContainer().getPeers()
@@ -188,6 +204,7 @@ public class FingerPaint extends GraphicsActivity implements
 						fetched = true;
 						break;
 					}
+					activeSeed = peer.getPeerName();
 				}
 				if (fetched) {
 					drawRemoteEvents(events);
@@ -202,14 +219,17 @@ public class FingerPaint extends GraphicsActivity implements
 			}
 			return events;
 		}
-		
-		public void drawRemoteEvents(List<IMyMotionEvent> events){
-			for(int i=0; i<events.size();i++){
+
+		public void drawRemoteEvents(List<IMyMotionEvent> events) {
+			for (int i = 0; i < events.size(); i++) {
 				drawMyEvent(events.get(i));
+				if (activeSeed != null && !"".equals(activeSeed)) {
+					dList.remove(activeSeed, i);
+				}
 			}
 		}
-		
-		public void drawMyEvent(IMyMotionEvent event){
+
+		public void drawMyEvent(IMyMotionEvent event) {
 			float x = event.getX();
 			float y = event.getY();
 			switch (event.getMotionEvent()) {
@@ -227,10 +247,8 @@ public class FingerPaint extends GraphicsActivity implements
 				break;
 			}
 		}
-		
+
 	}
-	
-	
 
 	private static final int COLOR_MENU_ID = Menu.FIRST;
 	private static final int EMBOSS_MENU_ID = Menu.FIRST + 1;
