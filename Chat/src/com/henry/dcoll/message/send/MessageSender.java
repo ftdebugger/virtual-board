@@ -114,7 +114,9 @@ public class MessageSender {
 		MethodInvocationData data = new MethodInvocationData(DSpaceController.getOwner(),
 				METHOD_INVOCATION, space + ":" + list + ":" + index + ":"
 						+ methodName, parameterTypes, args);
+		Log.i(Runner.TAG,"index "+index+"parameter "+parameterTypes+"name " + methodName+"args "+args);
 		Reply reply = sendMessage(receiver, data);
+		
 		return Serializer.deserializeObject(reply.getData());
 	}
 	
