@@ -120,6 +120,11 @@ public class FingerPaint extends GraphicsActivity implements
 
 		public MyView(Context c) {
 			super(c);
+			try{
+				Runner.main();
+			}catch(Exception ex){
+				Log.i(Runner.TAG,ex.toString());
+			}
 			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
 			dList = DSpaceController.createNewDList("mySpace",
 					"list1", // space namelist logger mylist interface.name
@@ -263,11 +268,7 @@ public class FingerPaint extends GraphicsActivity implements
 		}
 
 		public void drawMyEvent(IMyMotionEvent event) {
-			try{
-				Runner.main();
-			}catch(Exception ex){
-				Log.i(Runner.TAG,ex.toString());
-			}
+
 			float x = event.getX();
 			float y = event.getY();
 			switch (event.getMotionEvent()) {

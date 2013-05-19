@@ -6,6 +6,17 @@ public class MyMotionEvent implements IMyMotionEvent {
 	private float x, y;
 	private int action;
 
+	public MyMotionEvent() {
+		super();
+	}
+
+	public MyMotionEvent(float x, float y, int action) {
+		super();
+		this.x = x;
+		this.y = y;
+		this.action = action;
+	}
+
 	public MyMotionEvent(MotionEvent event) {
 		super();
 		this.x = event.getX();
