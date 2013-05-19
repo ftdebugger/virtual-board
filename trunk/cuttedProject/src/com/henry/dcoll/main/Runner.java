@@ -12,6 +12,8 @@ import android.util.Log;
 import com.henry.dcoll.controller.DSpaceController;
 import com.henry.dcoll.dlist.DList;
 import com.henry.dcoll.dlist.IDListListener;
+import com.nikolay.vb.container.IMyMotionEvent;
+import com.nikolay.vb.container.MyMotionEvent;
 
 public class Runner {
 	public static final String TAG = "chatlibrary";
@@ -43,23 +45,24 @@ public class Runner {
 
 		DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
 		
-		List<IMyEntity> myList = new ArrayList<IMyEntity>();
-		myList.add(new MyEntity(nickname + ":line2", 54));
-		myList.add(new MyEntity(nickname + ":line36", 86));
-		myList.add(new MyEntity(nickname + ":line71", 43));
-		myList.add(new MyEntity(nickname + ":line92", 13));
+		
+		List<IMyMotionEvent> myList = new ArrayList<IMyMotionEvent>();
+		myList.add(new MyMotionEvent(1f,3f, 54));
 		
 		List<IMyEntity> addedObjects = new ArrayList<IMyEntity>();
 		
-		DList<IMyEntity> dLists = DSpaceController
+		DList<IMyMotionEvent> dLists = DSpaceController
 				.createNewDList("mySpace", "list1", //space namelist logger mylist interface.name
 						new MyDListListener(), myList,
-						IMyEntity.class);
+						IMyMotionEvent.class);
 		
 		String line;
 		while(true){
 			try {
 				Thread.sleep(1000);
+				dLists.get("GT-I9300");
+				dLists.add("GT-I9300", new MyMotionEvent(1f,3f, 54));
+				dLists.remove("GT-I9300",0);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
