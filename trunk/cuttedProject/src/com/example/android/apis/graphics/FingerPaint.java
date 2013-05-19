@@ -196,7 +196,13 @@ public class FingerPaint extends GraphicsActivity implements
 					try {
 						events = dList.get(peer.getPeerName());
 					} catch (Exception ex) {
-						Log.i(Runner.TAG, "no events "+ex.getMessage());
+						Log.i(Runner.TAG, "no events "+ex.toString());
+//						DSpaceController.disconnect();
+//						DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
+//						dList = DSpaceController.createNewDList("mySpace",
+//											"list1", // space namelist logger mylist interface.name
+//											new MyDListListener(), new ArrayList<IMyMotionEvent>(),
+//											IMyMotionEvent.class);
 					}
 					if (events.isEmpty() || events == null) {
 						fetched = false;
@@ -215,7 +221,13 @@ public class FingerPaint extends GraphicsActivity implements
 				Toast toast = Toast.makeText(getContext(), text, duration);
 				toast.show();
 			} catch (Exception ex) {
-				Log.i(Runner.TAG,"get RemoteEvents Exeption"+ ex.getMessage());
+				Log.i(Runner.TAG,"get RemoteEvents Exeption "+ ex.toString());
+				DSpaceController.disconnect();
+				DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
+				dList = DSpaceController.createNewDList("mySpace",
+									"list1", // space namelist logger mylist interface.name
+									new MyDListListener(), new ArrayList<IMyMotionEvent>(),
+									IMyMotionEvent.class);
 			}
 			return events;
 		}
