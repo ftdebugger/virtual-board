@@ -83,12 +83,25 @@ public class FingerPaint extends GraphicsActivity implements
 			@Override
 			public void dListPartFound(String owner) {
 				Log.i(Runner.TAG, "I found part of D-list. Owner: " + owner);
+				CharSequence text = "I found part of D-list. Owner: " + owner;
+				int duration = Toast.LENGTH_LONG;
+				Toast toast = Toast.makeText(getContext(), text, duration);
+				toast.show();
 			}
 
 			@Override
 			public void dListPartLost(String owner) {
 				Log.i(Runner.TAG, "I lost part of D-list. Owner: " + owner);
-
+				CharSequence text = "I lost part of D-list. Owner: " + owner;
+				int duration = Toast.LENGTH_LONG;
+				Toast toast = Toast.makeText(getContext(), text, duration);
+				toast.show();
+				DSpaceController.disconnect();
+				DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
+				dList = DSpaceController.createNewDList("mySpace",
+									"list1", // space namelist logger mylist interface.name
+									new MyDListListener(), new ArrayList<IMyMotionEvent>(),
+									IMyMotionEvent.class);
 			}
 		}
 
@@ -222,12 +235,7 @@ public class FingerPaint extends GraphicsActivity implements
 				toast.show();
 			} catch (Exception ex) {
 				Log.i(Runner.TAG,"get RemoteEvents Exeption "+ ex.toString());
-				DSpaceController.disconnect();
-				DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
-				dList = DSpaceController.createNewDList("mySpace",
-									"list1", // space namelist logger mylist interface.name
-									new MyDListListener(), new ArrayList<IMyMotionEvent>(),
-									IMyMotionEvent.class);
+
 			}
 			return events;
 		}
