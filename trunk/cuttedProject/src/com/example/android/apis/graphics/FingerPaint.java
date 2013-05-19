@@ -120,11 +120,7 @@ public class FingerPaint extends GraphicsActivity implements
 
 		public MyView(Context c) {
 			super(c);
-			try{
-				Runner.main();
-			}catch(Exception ex){
-				Log.i(Runner.TAG,ex.toString());
-			}
+
 			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
 			dList = DSpaceController.createNewDList("mySpace",
 					"list1", // space namelist logger mylist interface.name
@@ -199,9 +195,7 @@ public class FingerPaint extends GraphicsActivity implements
 				touch_up();
 				invalidate();
 				if (((DSpaceListListener) dList.getListener()).getListFounded()) {
-//					if(dList.size()>0){
 					getRemoteEvents();
-//				}
 				}
 				break;
 			}
@@ -221,13 +215,12 @@ public class FingerPaint extends GraphicsActivity implements
 						events = dList.get(peer.getPeerName());
 					} catch (Exception ex) {
 						Log.i(Runner.TAG, "no events " + ex.toString());
-						
+
 						dList = DSpaceController.createNewDList(
 								"mySpace",
 								"list1", // space namelist logger mylist
 											// interface.name
-								new MyDListListener(),
-								dList.get(),
+								new MyDListListener(), dList.get(),
 								IMyMotionEvent.class);
 					}
 					if (events.isEmpty() || events == null) {
@@ -261,8 +254,11 @@ public class FingerPaint extends GraphicsActivity implements
 		public void drawRemoteEvents(List<IMyMotionEvent> events) {
 			for (int i = 0; i < events.size(); i++) {
 				drawMyEvent(events.get(i));
+
+			}
+			for (int i = 0; i < events.size(); i++) {
 				if (activeSeed != null && !"".equals(activeSeed)) {
-					dList.remove(activeSeed, i);
+					dList.remove(activeSeed, 0);
 				}
 			}
 		}
@@ -289,12 +285,16 @@ public class FingerPaint extends GraphicsActivity implements
 
 		private void reconectDlist() {
 			showToast("recreating Dlist");
-			dList = DSpaceController.createNewDList("mySpace", "list1", // space
-																		// namelist
-																		// logger
-																		// mylist
-																		// interface.name
-					new DSpaceListListener(), dList.get(), IMyMotionEvent.class);
+			dList = DSpaceController
+					.createNewDList(
+							"mySpace",
+							"list1", // space
+										// namelist
+										// logger
+										// mylist
+										// interface.name
+							new DSpaceListListener(), dList.get(),
+							IMyMotionEvent.class);
 		}
 
 	}
