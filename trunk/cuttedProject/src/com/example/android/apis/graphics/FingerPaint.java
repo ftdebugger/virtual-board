@@ -196,6 +196,8 @@ public class FingerPaint extends GraphicsActivity implements
 				invalidate();
 				if (((DSpaceListListener) dList.getListener()).getListFounded()) {
 					getRemoteEvents();
+				}else{
+					reconnectDlist();
 				}
 				break;
 			}
@@ -239,7 +241,7 @@ public class FingerPaint extends GraphicsActivity implements
 
 			} catch (Exception ex) {
 				Log.i(Runner.TAG, "get RemoteEvents Exeption " + ex.toString());
-				reconectDlist();
+				reconnectDlist();
 			}
 			return events;
 		}
@@ -283,7 +285,7 @@ public class FingerPaint extends GraphicsActivity implements
 			}
 		}
 
-		private void reconectDlist() {
+		private void reconnectDlist() {
 			showToast("recreating Dlist");
 			dList = DSpaceController
 					.createNewDList(
