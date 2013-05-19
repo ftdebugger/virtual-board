@@ -9,6 +9,5 @@
 			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="ApiDemos/libs/armeabi"/>
 		</attributes>
 	</classpathentry>
-	<classpathentry kind="lib" path="/Users/mikalai_charavatsenka/Downloads/MyChat/lib/dcoll.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>
