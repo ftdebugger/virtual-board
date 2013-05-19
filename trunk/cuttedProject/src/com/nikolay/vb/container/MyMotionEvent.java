@@ -1,8 +1,12 @@
 package com.nikolay.vb.container;
 
+import java.io.Serializable;
+
 import android.view.MotionEvent;
 
-public class MyMotionEvent implements IMyMotionEvent {
+public class MyMotionEvent implements IMyMotionEvent , Serializable{
+
+	private static final long serialVersionUID = -475829583782092474L;
 	private float x, y;
 	private int action;
 
@@ -53,6 +57,11 @@ public class MyMotionEvent implements IMyMotionEvent {
 	@Override
 	public int getMotionEvent() {
 		return action;
+	}
+
+	@Override
+	public void setMotionEvent(int action) {
+		this.action = action;
 	}
 
 }
