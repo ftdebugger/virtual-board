@@ -197,7 +197,7 @@ public class FingerPaint extends GraphicsActivity implements
 				if (((DSpaceListListener) dList.getListener()).getListFounded()) {
 					getRemoteEvents();
 				}else{
-					reconnectDlist();
+//					reconnectDlist();
 				}
 				break;
 			}
@@ -258,10 +258,13 @@ public class FingerPaint extends GraphicsActivity implements
 				drawMyEvent(events.get(i));
 
 			}
-			for (int i = 0; i < events.size(); i++) {
-				if (activeSeed != null && !"".equals(activeSeed)) {
-					dList.remove(activeSeed, 0);
-				}
+//			for (int i = 0; i < events.size(); i++) {
+//				if (activeSeed != null && !"".equals(activeSeed)) {
+//					dList.remove(activeSeed, 0);
+//				}
+//			}
+			while(dList.size(activeSeed)>0){
+				dList.remove(activeSeed, 0);
 			}
 		}
 
