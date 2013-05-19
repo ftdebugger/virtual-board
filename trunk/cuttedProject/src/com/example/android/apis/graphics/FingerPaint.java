@@ -121,6 +121,11 @@ public class FingerPaint extends GraphicsActivity implements
 		public MyView(Context c) {
 			super(c);
 
+			Runtime.getRuntime().addShutdownHook(new Thread() {
+				public void run() {
+					DSpaceController.disconnect();
+				}
+			});
 			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
 			dList = DSpaceController.createNewDList("mySpace",
 					"list1", // space namelist logger mylist interface.name
@@ -216,14 +221,7 @@ public class FingerPaint extends GraphicsActivity implements
 					try {
 						events = dList.get(peer.getPeerName());
 					} catch (Exception ex) {
-						Log.i(Runner.TAG, "no events " + ex.toString());
-
-						dList = DSpaceController.createNewDList(
-								"mySpace",
-								"list1", // space namelist logger mylist
-											// interface.name
-								new MyDListListener(), dList.get(),
-								IMyMotionEvent.class);
+						Log.i(Runner.TAG, "no events " + ex.toString());			
 					}
 					if (events.isEmpty() || events == null) {
 						fetched = false;
@@ -290,6 +288,7 @@ public class FingerPaint extends GraphicsActivity implements
 
 		private void reconnectDlist() {
 			showToast("recreating Dlist");
+			DSpaceController.destroyDList(dList);
 			dList = DSpaceController
 					.createNewDList(
 							"mySpace",
@@ -300,6 +299,7 @@ public class FingerPaint extends GraphicsActivity implements
 										// interface.name
 							new DSpaceListListener(), dList.get(),
 							IMyMotionEvent.class);
+			
 		}
 
 	}
