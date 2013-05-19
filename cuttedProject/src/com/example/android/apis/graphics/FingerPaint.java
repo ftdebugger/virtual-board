@@ -196,7 +196,7 @@ public class FingerPaint extends GraphicsActivity implements
 					try {
 						events = dList.get(peer.getPeerName());
 					} catch (Exception ex) {
-						Log.i(Runner.TAG, ex.toString());
+						Log.i(Runner.TAG, "no events "+ex.getMessage());
 					}
 					if (events.isEmpty() || events == null) {
 						fetched = false;
@@ -215,7 +215,7 @@ public class FingerPaint extends GraphicsActivity implements
 				Toast toast = Toast.makeText(getContext(), text, duration);
 				toast.show();
 			} catch (Exception ex) {
-
+				Log.i(Runner.TAG,"get RemoteEvents Exeption"+ ex.getMessage());
 			}
 			return events;
 		}
@@ -223,9 +223,9 @@ public class FingerPaint extends GraphicsActivity implements
 		public void drawRemoteEvents(List<IMyMotionEvent> events) {
 			for (int i = 0; i < events.size(); i++) {
 				drawMyEvent(events.get(i));
-				if (activeSeed != null && !"".equals(activeSeed)) {
-					dList.remove(activeSeed, i);
-				}
+//				if (activeSeed != null && !"".equals(activeSeed)) {
+//					dList.remove(activeSeed, i);
+//				}
 			}
 		}
 
