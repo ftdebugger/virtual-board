@@ -76,39 +76,47 @@ public class FingerPaint extends GraphicsActivity implements
 		mPaint.setColor(color);
 	}
 
-	public class MyView extends View {
+	public class DSpaceListListener implements IDListListener {
 
-		public class DSpaceListListener implements IDListListener {
+		private Boolean listFounded = false;
 
-			@Override
-			public void dListPartFound(String owner) {
-				Log.i(Runner.TAG, "I found part of D-list. Owner: " + owner);
-				CharSequence text = "I found part of D-list. Owner: " + owner;
-				int duration = Toast.LENGTH_LONG;
-				Toast toast = Toast.makeText(getContext(), text, duration);
-				toast.show();
-			}
-
-			@Override
-			public void dListPartLost(String owner) {
-				Log.i(Runner.TAG, "I lost part of D-list. Owner: " + owner);
-				CharSequence text = "I lost part of D-list. Owner: " + owner;
-				int duration = Toast.LENGTH_LONG;
-				Toast toast = Toast.makeText(getContext(), text, duration);
-				toast.show();
-				reconnect();
-			}
+		public Boolean getListFounded() {
+			return listFounded;
 		}
 
-		private static final float MINP = 0.25f;
-		private static final float MAXP = 0.75f;
+		public void setListFounded(Boolean listFounded) {
+			this.listFounded = listFounded;
+		}
 
+		@Override
+		public void dListPartFound(String owner) {
+			listFounded = true;
+			Log.i(Runner.TAG, "I found part of D-list. Owner: " + owner);
+			CharSequence text = "I found part of D-list. Owner: " + owner;
+			int duration = Toast.LENGTH_LONG;
+			Toast toast = Toast.makeText(getBaseContext(), text, duration);
+			toast.show();
+		}
+
+		@Override
+		public void dListPartLost(String owner) {
+			listFounded = false;
+			Log.i(Runner.TAG, "I lost part of D-list. Owner: " + owner);
+			CharSequence text = "I lost part of D-list. Owner: " + owner;
+			int duration = Toast.LENGTH_LONG;
+			Toast toast = Toast.makeText(getBaseContext(), text, duration);
+			toast.show();
+
+		}
+	}
+
+	public class MyView extends View {
 		private Bitmap mBitmap;
 		private Canvas mCanvas;
 		private Path mPath;
 		private Paint mBitmapPaint;
 		private String activeSeed = null;
-		DList<IMyMotionEvent> dList;
+		public DList<IMyMotionEvent> dList;
 
 		public MyView(Context c) {
 			super(c);
@@ -117,7 +125,6 @@ public class FingerPaint extends GraphicsActivity implements
 					"list1", // space namelist logger mylist interface.name
 					new DSpaceListListener(), new ArrayList<IMyMotionEvent>(),
 					IMyMotionEvent.class);
-
 			mPath = new Path();
 			mBitmapPaint = new Paint(Paint.DITHER_FLAG);
 		}
@@ -186,7 +193,11 @@ public class FingerPaint extends GraphicsActivity implements
 			case MotionEvent.ACTION_UP:
 				touch_up();
 				invalidate();
-				getRemoteEvents();
+				if (((DSpaceListListener) dList.getListener()).getListFounded()) {
+//					if(dList.size()>0){
+					getRemoteEvents();
+//				}
+				}
 				break;
 			}
 			return true;
@@ -204,7 +215,15 @@ public class FingerPaint extends GraphicsActivity implements
 					try {
 						events = dList.get(peer.getPeerName());
 					} catch (Exception ex) {
-						Log.i(Runner.TAG, "no events "+ex.toString());
+						Log.i(Runner.TAG, "no events " + ex.toString());
+						
+						dList = DSpaceController.createNewDList(
+								"mySpace",
+								"list1", // space namelist logger mylist
+											// interface.name
+								new MyDListListener(),
+								dList.get(),
+								IMyMotionEvent.class);
 					}
 					if (events.isEmpty() || events == null) {
 						fetched = false;
@@ -218,27 +237,37 @@ public class FingerPaint extends GraphicsActivity implements
 					drawRemoteEvents(events);
 				}
 
-				CharSequence text = "fetched " + fetched.toString();
-				int duration = Toast.LENGTH_LONG;
-				Toast toast = Toast.makeText(getContext(), text, duration);
-				toast.show();
+				showToast("fectched " + fetched.toString());
+
 			} catch (Exception ex) {
-				Log.i(Runner.TAG,"get RemoteEvents Exeption "+ ex.toString());
-				reconnect();
+				Log.i(Runner.TAG, "get RemoteEvents Exeption " + ex.toString());
+				reconectDlist();
 			}
 			return events;
+		}
+
+		public void showToast(String message) {
+			CharSequence text = message;
+			int duration = Toast.LENGTH_LONG;
+			Toast toast = Toast.makeText(getContext(), text, duration);
+			toast.show();
 		}
 
 		public void drawRemoteEvents(List<IMyMotionEvent> events) {
 			for (int i = 0; i < events.size(); i++) {
 				drawMyEvent(events.get(i));
-//				if (activeSeed != null && !"".equals(activeSeed)) {
-//					dList.remove(activeSeed, i);
-//				}
+				if (activeSeed != null && !"".equals(activeSeed)) {
+					dList.remove(activeSeed, i);
+				}
 			}
 		}
 
 		public void drawMyEvent(IMyMotionEvent event) {
+			try{
+				Runner.main();
+			}catch(Exception ex){
+				Log.i(Runner.TAG,ex.toString());
+			}
 			float x = event.getX();
 			float y = event.getY();
 			switch (event.getMotionEvent()) {
@@ -256,14 +285,15 @@ public class FingerPaint extends GraphicsActivity implements
 				break;
 			}
 		}
-		
-		private void reconnect(){
-			DSpaceController.disconnect();
-			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
-			dList = DSpaceController.createNewDList("mySpace",
-								"list1", // space namelist logger mylist interface.name
-								new MyDListListener(), new ArrayList<IMyMotionEvent>(),
-								IMyMotionEvent.class);
+
+		private void reconectDlist() {
+			showToast("recreating Dlist");
+			dList = DSpaceController.createNewDList("mySpace", "list1", // space
+																		// namelist
+																		// logger
+																		// mylist
+																		// interface.name
+					new DSpaceListListener(), dList.get(), IMyMotionEvent.class);
 		}
 
 	}
@@ -273,6 +303,7 @@ public class FingerPaint extends GraphicsActivity implements
 	private static final int BLUR_MENU_ID = Menu.FIRST + 2;
 	private static final int ERASE_MENU_ID = Menu.FIRST + 3;
 	private static final int SRCATOP_MENU_ID = Menu.FIRST + 4;
+	private static final int RECONNETC_MENU_ID = Menu.FIRST + 5;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -283,6 +314,7 @@ public class FingerPaint extends GraphicsActivity implements
 		menu.add(0, BLUR_MENU_ID, 0, "Blur").setShortcut('5', 'z');
 		menu.add(0, ERASE_MENU_ID, 0, "Erase").setShortcut('5', 'z');
 		menu.add(0, SRCATOP_MENU_ID, 0, "SrcATop").setShortcut('5', 'z');
+		menu.add(0, RECONNETC_MENU_ID, 0, "Reconnect").setShortcut('6', 'y');
 
 		/****
 		 * Is this the mechanism to extend with filter effects? Intent intent =
@@ -329,6 +361,10 @@ public class FingerPaint extends GraphicsActivity implements
 		case SRCATOP_MENU_ID:
 			mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
 			mPaint.setAlpha(0x80);
+			return true;
+		case RECONNETC_MENU_ID:
+			DSpaceController.disconnect();
+			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
