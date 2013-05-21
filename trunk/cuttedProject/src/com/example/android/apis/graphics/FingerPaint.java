@@ -270,10 +270,10 @@ public class FingerPaint extends GraphicsActivity implements
 				drawMyEvent(events.get(i));
 
 			}
-//			while ((dList.size(activeSeed) > 0) || (remoteListSize > 0)) {
-//				dList.remove(activeSeed, 0);
-//				remoteListSize--;
-//			}
+			while ((dList.size(activeSeed) > 0) || (remoteListSize > 0)) {
+				dList.remove(activeSeed, 0);
+				remoteListSize--;
+			}
 		}
 
 		public void drawMyEvent(IMyMotionEvent event) {
