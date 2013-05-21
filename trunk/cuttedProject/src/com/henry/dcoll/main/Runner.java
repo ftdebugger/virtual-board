@@ -12,20 +12,20 @@ import android.util.Log;
 import com.henry.dcoll.controller.DSpaceController;
 import com.henry.dcoll.dlist.DList;
 import com.henry.dcoll.dlist.IDListListener;
+import com.nikolay.vb.constants.Constants;
 import com.nikolay.vb.container.IMyMotionEvent;
 import com.nikolay.vb.container.MyMotionEvent;
 
 public class Runner {
-	public static final String TAG = "chatlibrary";
 	public static class MyDListListener implements IDListListener {
 		@Override
 		public void dListPartFound(String owner) {
-			Log.i(TAG,"I found part of D-list. Owner: " + owner);
+			Log.i(Constants.TAG,"I found part of D-list. Owner: " + owner);
 		}
 		
 		@Override
 		public void dListPartLost(String owner) {
-			Log.i(TAG,"I lost part of D-list. Owner: " + owner);
+			Log.i(Constants.TAG,"I lost part of D-list. Owner: " + owner);
 			
 		}
 	}
@@ -33,7 +33,7 @@ public class Runner {
 	public static void main() {
 		Map<String, DList<IMyEntity>> map = new HashMap<String, DList<IMyEntity>>();
 		
-		Log.i(TAG,"Enter your nickname:");
+		Log.i(Constants.TAG,"Enter your nickname:");
 		Scanner in = new Scanner(System.in);
 		String nickname = "lol";
 		
@@ -67,7 +67,7 @@ public class Runner {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Log.i(TAG,DSpaceController.getPeerContainer().getPeers().toString());
+			Log.i(Constants.TAG,DSpaceController.getPeerContainer().getPeers().toString());
 		}
 //		while (true) {
 //			if (in.hasNext()) {

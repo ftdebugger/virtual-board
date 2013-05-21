@@ -17,6 +17,8 @@
 package com.example.android.apis.graphics;
 
 import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import java.util.List;
 
@@ -25,15 +27,17 @@ import com.henry.dcoll.controller.DSpaceController;
 import com.henry.dcoll.dlist.DList;
 import com.henry.dcoll.dlist.IDListListener;
 import com.henry.dcoll.main.IMyEntity;
-import com.henry.dcoll.main.Runner;
 import com.henry.dcoll.main.Runner.MyDListListener;
 import com.henry.dcoll.peer.PeerInfo;
+import com.nikolay.vb.constants.Constants;
 import com.nikolay.vb.container.IMyMotionEvent;
 import com.nikolay.vb.container.MyMotionEvent;
+import com.nikolay.vb.factory.HandlerFactory;
 
 import android.content.Context;
 import android.graphics.*;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,6 +48,8 @@ import android.widget.Toast;
 
 public class FingerPaint extends GraphicsActivity implements
 		ColorPickerDialog.OnColorChangedListener {
+	public Handler displayRefreshHandler;
+
 	static {
 		Log.i("Test", "System.loadLibrary(\"alljoyn_java\")");
 		System.loadLibrary("alljoyn_java");
@@ -52,6 +58,7 @@ public class FingerPaint extends GraphicsActivity implements
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		displayRefreshHandler = HandlerFactory.getRefreshDisplayHandler();
 		setContentView(new MyView(this));
 
 		mPaint = new Paint();
@@ -91,21 +98,21 @@ public class FingerPaint extends GraphicsActivity implements
 		@Override
 		public void dListPartFound(String owner) {
 			listFounded = true;
-			Log.i(Runner.TAG, "I found part of D-list. Owner: " + owner);
-			CharSequence text = "I found part of D-list. Owner: " + owner;
-			int duration = Toast.LENGTH_LONG;
-			Toast toast = Toast.makeText(getBaseContext(), text, duration);
-			toast.show();
+			Log.i(Constants.TAG, "I found part of D-list. Owner: " + owner);
+//			CharSequence text = "I found part of D-list. Owner: " + owner;
+//			int duration = Toast.LENGTH_LONG;
+//			Toast toast = Toast.makeText(getBaseContext(), text, duration);
+//			toast.show();
 		}
 
 		@Override
 		public void dListPartLost(String owner) {
 			listFounded = false;
-			Log.i(Runner.TAG, "I lost part of D-list. Owner: " + owner);
-			CharSequence text = "I lost part of D-list. Owner: " + owner;
-			int duration = Toast.LENGTH_LONG;
-			Toast toast = Toast.makeText(getBaseContext(), text, duration);
-			toast.show();
+			Log.i(Constants.TAG, "I lost part of D-list. Owner: " + owner);
+//			CharSequence text = "I lost part of D-list. Owner: " + owner;
+//			int duration = Toast.LENGTH_LONG;
+//			Toast toast = Toast.makeText(getBaseContext(), text, duration);
+//			toast.show();
 
 		}
 	}
@@ -117,6 +124,26 @@ public class FingerPaint extends GraphicsActivity implements
 		private Paint mBitmapPaint;
 		private String activeSeed = null;
 		public DList<IMyMotionEvent> dList;
+
+		// public Runnable runnable = new Runnable() {
+		// @Override
+		// public void run() {
+		// for (int i = 0; i <= 100; i++) {
+		// try {
+		// Thread.sleep(10000);
+		// Log.i(Constants.TAG, "Dlist size: " + dList.size());
+		// if (((DSpaceListListener) dList.getListener())
+		// .getListFounded()) {
+		// getRemoteEvents();
+		// } else {
+		// // reconnectDlist();
+		// }
+		// } catch (InterruptedException e) {
+		// e.printStackTrace();
+		// }
+		// }
+		// }
+		// };
 
 		public MyView(Context c) {
 			super(c);
@@ -131,8 +158,10 @@ public class FingerPaint extends GraphicsActivity implements
 					"list1", // space namelist logger mylist interface.name
 					new DSpaceListListener(), new ArrayList<IMyMotionEvent>(),
 					IMyMotionEvent.class);
+			callAsynchronousTask();
 			mPath = new Path();
 			mBitmapPaint = new Paint(Paint.DITHER_FLAG);
+			// new Thread(runnable).start();
 		}
 
 		@Override
@@ -183,6 +212,8 @@ public class FingerPaint extends GraphicsActivity implements
 
 		@Override
 		public boolean onTouchEvent(MotionEvent event) {
+			// displayRefreshHandler.sendEmptyMessage(0);
+
 			float x = event.getX();
 			float y = event.getY();
 			dList.add(new MyMotionEvent(event));
@@ -199,11 +230,6 @@ public class FingerPaint extends GraphicsActivity implements
 			case MotionEvent.ACTION_UP:
 				touch_up();
 				invalidate();
-				if (((DSpaceListListener) dList.getListener()).getListFounded()) {
-					getRemoteEvents();
-				}else{
-//					reconnectDlist();
-				}
 				break;
 			}
 			return true;
@@ -218,56 +244,39 @@ public class FingerPaint extends GraphicsActivity implements
 						.keySet());
 				Boolean fetched = false;
 				for (PeerInfo peer : peers) {
-					try {
-						events = dList.get(peer.getPeerName());
-					} catch (Exception ex) {
-						Log.i(Runner.TAG, "no events " + ex.toString());			
-					}
+					events = dList.get(peer.getPeerName());
 					if (events.isEmpty() || events == null) {
 						fetched = false;
 					} else {
 						fetched = true;
 						activeSeed = peer.getPeerName();
-						break;
 					}
+					if (fetched) {
+						drawRemoteEvents(events);
+					}
+//					showToast("fectched " + fetched.toString());
 				}
-				if (fetched) {
-					drawRemoteEvents(events);
-				}
-
-				showToast("fectched " + fetched.toString());
-
 			} catch (Exception ex) {
-				Log.i(Runner.TAG, "get RemoteEvents Exeption " + ex.toString());
-				reconnectDlist();
+				Log.i(Constants.TAG,
+						"get RemoteEvents Exeption " + ex.toString());
+//				reconnectDlist();
 			}
 			return events;
 		}
 
-		public void showToast(String message) {
-			CharSequence text = message;
-			int duration = Toast.LENGTH_LONG;
-			Toast toast = Toast.makeText(getContext(), text, duration);
-			toast.show();
-		}
-
 		public void drawRemoteEvents(List<IMyMotionEvent> events) {
+			int remoteListSize = events.size();
 			for (int i = 0; i < events.size(); i++) {
 				drawMyEvent(events.get(i));
 
 			}
-//			for (int i = 0; i < events.size(); i++) {
-//				if (activeSeed != null && !"".equals(activeSeed)) {
-//					dList.remove(activeSeed, 0);
-//				}
+//			while ((dList.size(activeSeed) > 0) || (remoteListSize > 0)) {
+//				dList.remove(activeSeed, 0);
+//				remoteListSize--;
 //			}
-			while(dList.size(activeSeed)>0){
-				dList.remove(activeSeed, 0);
-			}
 		}
 
 		public void drawMyEvent(IMyMotionEvent event) {
-
 			float x = event.getX();
 			float y = event.getY();
 			switch (event.getMotionEvent()) {
@@ -290,16 +299,42 @@ public class FingerPaint extends GraphicsActivity implements
 			showToast("recreating Dlist");
 			DSpaceController.destroyDList(dList);
 			dList = DSpaceController
-					.createNewDList(
-							"mySpace",
-							"list1", // space
-										// namelist
-										// logger
-										// mylist
-										// interface.name
+					.createNewDList("mySpace", "list1",
 							new DSpaceListListener(), dList.get(),
 							IMyMotionEvent.class);
-			
+		}
+
+		public void showToast(String message) {
+			CharSequence text = message;
+			int duration = Toast.LENGTH_LONG;
+			Toast toast = Toast.makeText(getContext(), text, duration);
+			toast.show();
+		}
+
+		public void callAsynchronousTask() {
+			final Handler handler = new Handler();
+			Timer timer = new Timer();
+			TimerTask doAsynchronousTask = new TimerTask() {
+				@Override
+				public void run() {
+					handler.post(new Runnable() {
+						public void run() {
+							try {
+								if (((DSpaceListListener) dList.getListener())
+										.getListFounded()) {
+									getRemoteEvents();
+								} else {
+									// reconnectDlist();
+								}
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+							}
+						}
+					});
+				}
+			};
+			timer.schedule(doAsynchronousTask, 0, 10000); // execute in every
+															// 50000 ms
 		}
 
 	}

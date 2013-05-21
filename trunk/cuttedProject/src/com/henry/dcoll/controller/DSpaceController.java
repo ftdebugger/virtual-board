@@ -20,12 +20,12 @@ import com.henry.dcoll.dlist.DListCore;
 import com.henry.dcoll.dlist.IDListListener;
 import com.henry.dcoll.dspace.DSpace;
 import com.henry.dcoll.dspace.DSpaceContainer;
-import com.henry.dcoll.main.Runner;
 import com.henry.dcoll.message.receive.IMessageReceiver;
 import com.henry.dcoll.message.receive.MessageReceiver;
 import com.henry.dcoll.message.send.MessageSender;
 import com.henry.dcoll.peer.PeerContainer;
 import com.henry.dcoll.peer.PeerInfo;
+import com.nikolay.vb.constants.Constants;
 
 public class DSpaceController {
 	private static final String group = "com.henry.dcoll.controller";
@@ -46,7 +46,7 @@ public class DSpaceController {
 		@Override
 		public void foundAdvertisedName(String name, short transport, String namePrefix) {
 			if (!name.equals(group + "." + owner)) {
-				Log.i(Runner.TAG,String.format("BusListener.foundAdvertisedName(%s, %d, %s)", name, transport, namePrefix));
+				Log.i(Constants.TAG,String.format("BusListener.foundAdvertisedName(%s, %d, %s)", name, transport, namePrefix));
 				short contactPort = CONTACT_PORT;
 				SessionOpts sessionOpts = new SessionOpts();
 				sessionOpts.traffic = SessionOpts.TRAFFIC_MESSAGES;
@@ -62,7 +62,7 @@ public class DSpaceController {
 				if (status != Status.OK) {
 					System.exit(0);
 				}
-				Log.i(Runner.TAG,String.format("BusAttachement.joinSession successful sessionId = %d", sessionId.value));
+				Log.i(Constants.TAG,String.format("BusAttachement.joinSession successful sessionId = %d", sessionId.value));
 				
 				ProxyBusObject peerAccessPoint =  mBus.getProxyBusObject(name,
 													"/messageReciever",
@@ -87,14 +87,14 @@ public class DSpaceController {
 		
 		@Override
 		public void lostAdvertisedName(String name, short transport, String namePrefix) {
-			Log.i(Runner.TAG,String.format("BusListener.lostAdvertisedName(%s, %d, %s)", name, transport, namePrefix));
+			Log.i(Constants.TAG,String.format("BusListener.lostAdvertisedName(%s, %d, %s)", name, transport, namePrefix));
 			super.lostAdvertisedName(name, transport, namePrefix);
 		}
 		
 		@Override
 		public void nameOwnerChanged(String busName, String previousOwner,
 				String newOwner) {
-			Log.i(Runner.TAG,String.format("BusListener.nameOwnerChanged(%s, %s, %s)", busName, previousOwner, newOwner));
+			Log.i(Constants.TAG,String.format("BusListener.nameOwnerChanged(%s, %s, %s)", busName, previousOwner, newOwner));
 			super.nameOwnerChanged(busName, previousOwner, newOwner);
 		}
 		
@@ -104,7 +104,7 @@ public class DSpaceController {
 	private static class MySessionListener extends SessionListener {
 		@Override
 		public void sessionLost(int sessionId) {
-			Log.i(Runner.TAG,String.format("SessionListener.sessionLost(%d)", sessionId));
+			Log.i(Constants.TAG,String.format("SessionListener.sessionLost(%d)", sessionId));
 			String peerName = peerContainer.getPeerNameBySessionId(sessionId);
 			dSpaceContainer.removeAllDListParts(peerName);
 			peerContainer.removePeer(sessionId);
@@ -113,13 +113,13 @@ public class DSpaceController {
 		
 		@Override
 		public void sessionMemberAdded(int sessionId, String uniqueName) {
-			Log.i(Runner.TAG,String.format("SessionListener.sessionMemberAdded(%d, %s)", sessionId, uniqueName));
+			Log.i(Constants.TAG,String.format("SessionListener.sessionMemberAdded(%d, %s)", sessionId, uniqueName));
 			super.sessionMemberAdded(sessionId, uniqueName);
 		}
 		
 		@Override
 		public void sessionMemberRemoved(int sessionId, String uniqueName) {
-			Log.i(Runner.TAG,String.format("SessionListener.sessionMemberRemoved(%d, %s)", sessionId, uniqueName));
+			Log.i(Constants.TAG,String.format("SessionListener.sessionMemberRemoved(%d, %s)", sessionId, uniqueName));
 			super.sessionMemberRemoved(sessionId, uniqueName);
 		}
 	}
@@ -158,7 +158,7 @@ public class DSpaceController {
 						@Override
 						public boolean acceptSessionJoiner(short sessionPort,
 								String joiner, SessionOpts sessionOpts) {
-							Log.i(Runner.TAG,String.format("SessionPortListener.acceptSessionJoiner(%d, %s)", sessionPort, joiner));
+							Log.i(Constants.TAG,String.format("SessionPortListener.acceptSessionJoiner(%d, %s)", sessionPort, joiner));
 							if (sessionPort == CONTACT_PORT) {
 								return true;
 							} else {
@@ -168,7 +168,7 @@ public class DSpaceController {
 						
 						@Override
 			            public void sessionJoined(short sessionPort, int id, String joiner) {
-							Log.i(Runner.TAG,String.format("SessionPortListener.sessionJoined(%d, %d, %s)", sessionPort, id, joiner));
+							Log.i(Constants.TAG,String.format("SessionPortListener.sessionJoined(%d, %d, %s)", sessionPort, id, joiner));
 			            }
 					});
 			if (status != Status.OK) {
