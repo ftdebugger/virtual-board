@@ -7,12 +7,12 @@ import org.alljoyn.bus.annotation.BusMethod;
 import android.util.Log;
 
 import com.henry.dcoll.dspace.DSpaceContainer;
-import com.henry.dcoll.main.Runner;
 import com.henry.dcoll.message.data.AbstractData;
 import com.henry.dcoll.message.handler.AbstractMessageHandler;
 import com.henry.dcoll.message.handler.MessageHandlerFactory;
 import com.henry.dcoll.message.send.MessageSender;
 import com.henry.dcoll.util.Serializer;
+import com.nikolay.vb.constants.Constants;
 
 public class MessageReceiver implements IMessageReceiver, BusObject {
 	private MessageHandlerFactory messageHandlerFactory;
@@ -25,7 +25,7 @@ public class MessageReceiver implements IMessageReceiver, BusObject {
 	@BusMethod
 	public Reply message(byte[] byteData) throws BusException {
 		AbstractData abstractData = Serializer.deserializeObject(byteData);
-		Log.i(Runner.TAG,"Sender {" + abstractData.getSender()
+		Log.i(Constants.TAG,"Sender {" + abstractData.getSender()
 				+ "}, message type {" + abstractData.getMessageType()
 				+ "}, message {" + abstractData.getMessage() + "}");
 		AbstractMessageHandler messageHandler = messageHandlerFactory

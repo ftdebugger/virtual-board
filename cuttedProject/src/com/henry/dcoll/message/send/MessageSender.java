@@ -13,7 +13,6 @@ import com.henry.dcoll.dlist.DListCore;
 import com.henry.dcoll.dlist.ObjectLocation;
 import com.henry.dcoll.dspace.DSpace;
 import com.henry.dcoll.dspace.DSpaceContainer;
-import com.henry.dcoll.main.Runner;
 import com.henry.dcoll.message.data.AbstractData;
 import com.henry.dcoll.message.data.AdditionIntoRemoteListData;
 import com.henry.dcoll.message.data.AdditionIntoLocalListData;
@@ -27,6 +26,7 @@ import com.henry.dcoll.message.receive.IMessageReceiver;
 import com.henry.dcoll.message.receive.IMessageReceiver.Reply;
 import com.henry.dcoll.peer.PeerContainer;
 import com.henry.dcoll.util.Serializer;
+import com.nikolay.vb.constants.Constants;
 
 import static com.henry.dcoll.message.MessageType.*;
 
@@ -57,7 +57,7 @@ public class MessageSender {
 			if (reply.getSender().length() != 0
 					&& reply.getMessage().length() != 0) {
 				String sender = reply.getSender();
-				Log.i(Runner.TAG,"Reply has been received from " + sender
+				Log.i(Constants.TAG,"Reply has been received from " + sender
 						+ ". Reply {" + reply.getMessage() + "}");
 				String[] messageArray = reply.getMessage().split(":");
 				String replySpace = messageArray[0];
@@ -85,7 +85,7 @@ public class MessageSender {
 			if (reply.getSender().length() != 0
 					&& reply.getMessage().length() != 0) {
 				String sender = reply.getSender();
-				Log.i(Runner.TAG,"Reply has been received from " + sender
+				Log.i(Constants.TAG,"Reply has been received from " + sender
 						+ ". Reply {" + reply.getMessage() + "}");
 				String[] messageArray = reply.getMessage().split(":");
 				String replySpace = messageArray[0];
