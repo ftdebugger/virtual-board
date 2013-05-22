@@ -99,20 +99,20 @@ public class FingerPaint extends GraphicsActivity implements
 		public void dListPartFound(String owner) {
 			listFounded = true;
 			Log.i(Constants.TAG, "I found part of D-list. Owner: " + owner);
-//			CharSequence text = "I found part of D-list. Owner: " + owner;
-//			int duration = Toast.LENGTH_LONG;
-//			Toast toast = Toast.makeText(getBaseContext(), text, duration);
-//			toast.show();
+			// CharSequence text = "I found part of D-list. Owner: " + owner;
+			// int duration = Toast.LENGTH_LONG;
+			// Toast toast = Toast.makeText(getBaseContext(), text, duration);
+			// toast.show();
 		}
 
 		@Override
 		public void dListPartLost(String owner) {
 			listFounded = false;
 			Log.i(Constants.TAG, "I lost part of D-list. Owner: " + owner);
-//			CharSequence text = "I lost part of D-list. Owner: " + owner;
-//			int duration = Toast.LENGTH_LONG;
-//			Toast toast = Toast.makeText(getBaseContext(), text, duration);
-//			toast.show();
+			// CharSequence text = "I lost part of D-list. Owner: " + owner;
+			// int duration = Toast.LENGTH_LONG;
+			// Toast toast = Toast.makeText(getBaseContext(), text, duration);
+			// toast.show();
 
 		}
 	}
@@ -216,7 +216,8 @@ public class FingerPaint extends GraphicsActivity implements
 
 			float x = event.getX();
 			float y = event.getY();
-			dList.add(new MyMotionEvent(event));
+
+			spreadRemoteEvents(new MyMotionEvent(event));
 
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
@@ -254,26 +255,38 @@ public class FingerPaint extends GraphicsActivity implements
 					if (fetched) {
 						drawRemoteEvents(events);
 					}
-//					showToast("fectched " + fetched.toString());
+
 				}
 			} catch (Exception ex) {
 				Log.i(Constants.TAG,
 						"get RemoteEvents Exeption " + ex.toString());
-//				reconnectDlist();
+				// reconnectDlist();
 			}
 			return events;
 		}
 
+		public void spreadRemoteEvents(MyMotionEvent myMotionEvent) {
+			try {
+				List<PeerInfo> peers = new ArrayList<PeerInfo>();
+				peers.addAll(DSpaceController.getPeerContainer().getPeers()
+						.keySet());
+				for (PeerInfo peer : peers) {
+					dList.add(peer.getPeerName(), myMotionEvent);
+				}
+			} catch (Exception ex) {
+				Log.i(Constants.TAG, "spreadEvents Exeption " + ex.toString());
+			}
+		}
+
 		public void drawRemoteEvents(List<IMyMotionEvent> events) {
-			int remoteListSize = events.size();
+//			int remoteListSize = events.size();
 			for (int i = 0; i < events.size(); i++) {
 				drawMyEvent(events.get(i));
-
 			}
-			while ((dList.size(activeSeed) > 0) || (remoteListSize > 0)) {
-				dList.remove(activeSeed, 0);
-				remoteListSize--;
-			}
+//			while ((dList.size() > 0) || (remoteListSize > 0)) {
+//				dList.remove(0);
+//				remoteListSize--;
+//			}
 		}
 
 		public void drawMyEvent(IMyMotionEvent event) {
@@ -322,7 +335,7 @@ public class FingerPaint extends GraphicsActivity implements
 							try {
 								if (((DSpaceListListener) dList.getListener())
 										.getListFounded()) {
-									getRemoteEvents();
+									processEvents();
 								} else {
 									// reconnectDlist();
 								}
@@ -333,8 +346,20 @@ public class FingerPaint extends GraphicsActivity implements
 					});
 				}
 			};
-			timer.schedule(doAsynchronousTask, 0, 10000); // execute in every
+			timer.schedule(doAsynchronousTask, 0, 100); // execute in every
 															// 50000 ms
+		}
+
+		public void processEvents() {
+			List<IMyMotionEvent> events = null;
+			try {
+				events = dList.get();
+				if (!events.isEmpty() || events != null) {
+					drawRemoteEvents(events);
+				}
+			} catch (Exception ex) {
+				Log.i(Constants.TAG, "draw events Exeption " + ex.toString());
+			}
 		}
 
 	}
