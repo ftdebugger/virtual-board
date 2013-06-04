@@ -144,6 +144,10 @@ public class DListCore <T> {
 	public List<String> getRemoteListOwners() {
 		return new LinkedList<String>(remoteLists.keySet());
 	}
+	
+	public void removeAll(){
+		localList.clear();
+	}
 
 	@Override
 	public String toString() {

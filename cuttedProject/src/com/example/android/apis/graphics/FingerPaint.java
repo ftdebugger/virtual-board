@@ -27,15 +27,19 @@ import com.henry.dcoll.controller.DSpaceController;
 import com.henry.dcoll.dlist.DList;
 import com.henry.dcoll.dlist.IDListListener;
 import com.henry.dcoll.main.IMyEntity;
+import com.henry.dcoll.main.Runner;
 import com.henry.dcoll.main.Runner.MyDListListener;
 import com.henry.dcoll.peer.PeerInfo;
 import com.nikolay.vb.constants.Constants;
+import com.nikolay.vb.container.DrawController;
 import com.nikolay.vb.container.IMyMotionEvent;
 import com.nikolay.vb.container.MyMotionEvent;
+import com.nikolay.vb.container.IDrawController;
 import com.nikolay.vb.factory.HandlerFactory;
 
 import android.content.Context;
 import android.graphics.*;
+import android.graphics.Paint.Style;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -69,6 +73,7 @@ public class FingerPaint extends GraphicsActivity implements
 		mPaint.setStrokeJoin(Paint.Join.ROUND);
 		mPaint.setStrokeCap(Paint.Cap.ROUND);
 		mPaint.setStrokeWidth(12);
+		mPaint.setTextSize(25F);
 
 		mEmboss = new EmbossMaskFilter(new float[] { 1, 1, 1 }, 0.4f, 6, 3.5f);
 
@@ -78,6 +83,7 @@ public class FingerPaint extends GraphicsActivity implements
 	private Paint mPaint;
 	private MaskFilter mEmboss;
 	private MaskFilter mBlur;
+	private Boolean erase = false;
 
 	public void colorChanged(int color) {
 		mPaint.setColor(color);
@@ -121,29 +127,37 @@ public class FingerPaint extends GraphicsActivity implements
 		private Bitmap mBitmap;
 		private Canvas mCanvas;
 		private Path mPath;
+		private Path mRemotePath;
 		private Paint mBitmapPaint;
-		private String activeSeed = null;
+		private String activeSeed = "";
 		public DList<IMyMotionEvent> dList;
+		public DList<IDrawController> drawController;
+		private List<MyMotionEvent> spreadEvents = new ArrayList<MyMotionEvent>();
+		private int drawed = 0;
+		private int spreaded = 0;
+		private String seedName = android.os.Build.MODEL.replace(" ", "");
 
-		// public Runnable runnable = new Runnable() {
-		// @Override
-		// public void run() {
-		// for (int i = 0; i <= 100; i++) {
-		// try {
-		// Thread.sleep(10000);
-		// Log.i(Constants.TAG, "Dlist size: " + dList.size());
-		// if (((DSpaceListListener) dList.getListener())
-		// .getListFounded()) {
-		// getRemoteEvents();
-		// } else {
-		// // reconnectDlist();
-		// }
-		// } catch (InterruptedException e) {
-		// e.printStackTrace();
-		// }
-		// }
-		// }
-		// };
+		public Runnable runnableSpread = new Runnable() {
+			@Override
+			public void run() {
+				try {
+					while (true) {
+						if (spreadEvents.size() > spreaded) {
+							for (int i = spreaded; i < spreadEvents.size(); i++) {
+								spreadRemoteEvents(spreadEvents.get(i));
+							}
+							spreaded = spreadEvents.size();
+						} else {
+							// reconnectDlist();
+						}
+
+						Thread.sleep(50);
+					}
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		};
 
 		public MyView(Context c) {
 			super(c);
@@ -153,15 +167,21 @@ public class FingerPaint extends GraphicsActivity implements
 					DSpaceController.disconnect();
 				}
 			});
-			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
+			DSpaceController.connect(seedName);
 			dList = DSpaceController.createNewDList("mySpace",
 					"list1", // space namelist logger mylist interface.name
 					new DSpaceListListener(), new ArrayList<IMyMotionEvent>(),
 					IMyMotionEvent.class);
+			drawController = DSpaceController.createNewDList("mySpace",
+					"controller", new ArrayList<IDrawController>(),
+					IDrawController.class);
+			drawController.add(new DrawController());
 			callAsynchronousTask();
+		    callSpreadEventsTask();
 			mPath = new Path();
+			mRemotePath = new Path();
 			mBitmapPaint = new Paint(Paint.DITHER_FLAG);
-			// new Thread(runnable).start();
+//			new Thread(runnableSpread).start();
 		}
 
 		@Override
@@ -175,14 +195,29 @@ public class FingerPaint extends GraphicsActivity implements
 
 		@Override
 		protected void onDraw(Canvas canvas) {
+			Paint paint = new Paint();
+			paint.setColor(Color.WHITE);
+			paint.setStyle(Style.FILL);
+			canvas.drawPaint(paint);
+
+			paint.setColor(Color.BLACK);
+			paint.setTextSize(20);
+
 			canvas.drawColor(0xFFAAAAAA);
 
 			canvas.drawBitmap(mBitmap, 0, 0, mBitmapPaint);
 
 			canvas.drawPath(mPath, mPaint);
+			canvas.drawPath(mRemotePath, mPaint);
+			if (!"".equals(activeSeed)) {
+				canvas.drawCircle(rmX, rmY, TOUCH_TOLERANCE + 2, mPaint);
+			}
+			// canvas.drawText(activeSeed, rmX, rmY, paint);
+
 		}
 
 		private float mX, mY;
+		private float rmX, rmY;
 		private static final float TOUCH_TOLERANCE = 4;
 
 		private void touch_start(float x, float y) {
@@ -216,9 +251,6 @@ public class FingerPaint extends GraphicsActivity implements
 
 			float x = event.getX();
 			float y = event.getY();
-
-			spreadRemoteEvents(new MyMotionEvent(event));
-
 			switch (event.getAction()) {
 			case MotionEvent.ACTION_DOWN:
 				touch_start(x, y);
@@ -233,6 +265,8 @@ public class FingerPaint extends GraphicsActivity implements
 				invalidate();
 				break;
 			}
+			spreadEvents.add(new MyMotionEvent(event));
+			// spreadRemoteEvents(new MyMotionEvent(event));
 			return true;
 		}
 
@@ -279,33 +313,39 @@ public class FingerPaint extends GraphicsActivity implements
 		}
 
 		public void drawRemoteEvents(List<IMyMotionEvent> events) {
-//			int remoteListSize = events.size();
-			for (int i = 0; i < events.size(); i++) {
+			// int remoteListSize = events.size();
+			for (int i = drawed; i < events.size(); i++) {
 				drawMyEvent(events.get(i));
 			}
-//			while ((dList.size() > 0) || (remoteListSize > 0)) {
-//				dList.remove(0);
-//				remoteListSize--;
-//			}
+			// while ((dList.size() > 0) || (remoteListSize > 0)) {
+			// dList.remove(0);
+			// remoteListSize--;
+			// }
+			// while (dList.size() > 0) {
+			// dList.remove(0);
+			// }
 		}
 
 		public void drawMyEvent(IMyMotionEvent event) {
 			float x = event.getX();
 			float y = event.getY();
+
 			switch (event.getMotionEvent()) {
 			case MotionEvent.ACTION_DOWN:
-				touch_start(x, y);
+				remoteTouch_start(x, y);
 				invalidate();
 				break;
 			case MotionEvent.ACTION_MOVE:
-				touch_move(x, y);
+				remoteTouch_move(x, y);
 				invalidate();
 				break;
 			case MotionEvent.ACTION_UP:
-				touch_up();
+				event.setPeerName("");
+				remoteTouch_up();
 				invalidate();
 				break;
 			}
+			activeSeed = event.getPeerName();
 		}
 
 		private void reconnectDlist() {
@@ -319,7 +359,7 @@ public class FingerPaint extends GraphicsActivity implements
 
 		public void showToast(String message) {
 			CharSequence text = message;
-			int duration = Toast.LENGTH_LONG;
+			int duration = Toast.LENGTH_SHORT;
 			Toast toast = Toast.makeText(getContext(), text, duration);
 			toast.show();
 		}
@@ -333,21 +373,111 @@ public class FingerPaint extends GraphicsActivity implements
 					handler.post(new Runnable() {
 						public void run() {
 							try {
-								if (((DSpaceListListener) dList.getListener())
-										.getListFounded()) {
+								if (erase) {
+									erase = false;
+									erase();
+								}
+								// if (drawController.get().get(0).getErase()) {
+								// drawController.get().get(0).setErase(false);
+								// erase();
+								// }
+								if (dList.size() > drawed) {
 									processEvents();
+									drawed = dList.size();
 								} else {
 									// reconnectDlist();
 								}
 							} catch (Exception e) {
-								// TODO Auto-generated catch block
+								Log.i(Constants.TAG, e.toString());
 							}
 						}
 					});
 				}
 			};
 			timer.schedule(doAsynchronousTask, 0, 100); // execute in every
-															// 50000 ms
+														// 50000 ms
+		}
+
+		public void callSpreadEventsTask() {
+			final Handler handler = new Handler();
+			Timer timer = new Timer();
+			TimerTask doAsynchronousTask = new TimerTask() {
+				@Override
+				public void run() {
+					handler.post(new Runnable() {
+						public void run() {
+							try {
+
+								if (spreadEvents.size() > spreaded) {
+									for (int i = spreaded; i < spreadEvents
+											.size(); i++) {
+										spreadRemoteEvents(spreadEvents.get(i));
+									}
+									spreaded = spreadEvents.size();
+								} else {
+									// reconnectDlist();
+								}
+							} catch (Exception e) {
+								Log.i(Constants.TAG, e.toString());
+							}
+						}
+					});
+				}
+			};
+			timer.schedule(doAsynchronousTask, 0, 100); // execute in every
+														// 50000 ms
+		}
+
+		private void remoteTouch_start(float x, float y) {
+			mRemotePath.reset();
+			mRemotePath.moveTo(x, y);
+			rmX = x;
+			rmY = y;
+		}
+
+		private void remoteTouch_move(float x, float y) {
+			float dx = Math.abs(x - rmX);
+			float dy = Math.abs(y - rmY);
+			if (dx >= TOUCH_TOLERANCE || dy >= TOUCH_TOLERANCE) {
+				mRemotePath.quadTo(rmX, rmY, (x + rmX) / 2, (y + rmY) / 2);
+				rmX = x;
+				rmY = y;
+			}
+		}
+
+		private void remoteTouch_up() {
+			mRemotePath.lineTo(rmX, rmY);
+			// commit the path to our offscreen
+			mCanvas.drawPath(mRemotePath, mPaint);
+			// kill this so we don't double draw
+		}
+
+		private void clearDlist() {
+			dList.removeAll();
+		}
+
+		private void erase() {
+			mBitmap = Bitmap.createBitmap(mBitmap.getWidth(),
+					mBitmap.getHeight(), Bitmap.Config.ARGB_8888);
+			mCanvas = new Canvas(mBitmap);
+			drawed = 0;
+			mPath.reset();
+			mRemotePath.reset();
+			clearDlist();
+			invalidate();
+		}
+
+		public void eraseAll() {
+			try {
+				List<PeerInfo> peers = new ArrayList<PeerInfo>();
+				peers.addAll(DSpaceController.getPeerContainer().getPeers()
+						.keySet());
+				for (PeerInfo peer : peers) {
+					drawController.get(peer.getPeerName(), 0).setErase(true);
+				}
+			} catch (Exception ex) {
+				Log.i(Constants.TAG, "spreadEvents Exeption " + ex.toString());
+			}
 		}
 
 		public void processEvents() {
@@ -369,7 +499,8 @@ public class FingerPaint extends GraphicsActivity implements
 	private static final int BLUR_MENU_ID = Menu.FIRST + 2;
 	private static final int ERASE_MENU_ID = Menu.FIRST + 3;
 	private static final int SRCATOP_MENU_ID = Menu.FIRST + 4;
-	private static final int RECONNETC_MENU_ID = Menu.FIRST + 5;
+	private static final int CLEAR_SCREEN_ID = Menu.FIRST + 5;
+	private static final int CLEAR_ALL = Menu.FIRST + 6;
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -380,7 +511,8 @@ public class FingerPaint extends GraphicsActivity implements
 		menu.add(0, BLUR_MENU_ID, 0, "Blur").setShortcut('5', 'z');
 		menu.add(0, ERASE_MENU_ID, 0, "Erase").setShortcut('5', 'z');
 		menu.add(0, SRCATOP_MENU_ID, 0, "SrcATop").setShortcut('5', 'z');
-		menu.add(0, RECONNETC_MENU_ID, 0, "Reconnect").setShortcut('6', 'y');
+		menu.add(0, CLEAR_SCREEN_ID, 0, "Clear").setShortcut('6', 'y');
+		menu.add(0, CLEAR_SCREEN_ID, 0, "Clear All").setShortcut('7', 'y');
 
 		/****
 		 * Is this the mechanism to extend with filter effects? Intent intent =
@@ -428,9 +560,14 @@ public class FingerPaint extends GraphicsActivity implements
 			mPaint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_ATOP));
 			mPaint.setAlpha(0x80);
 			return true;
-		case RECONNETC_MENU_ID:
-			DSpaceController.disconnect();
-			DSpaceController.connect(android.os.Build.MODEL.replace(" ", ""));
+		case CLEAR_SCREEN_ID:
+			// DSpaceController.disconnect();
+			// DSpaceController.connect(android.os.Build.MODEL.replace(" ",
+			// ""));
+			erase = true;
+			return true;
+		case CLEAR_ALL:
+			erase = true;
 			return true;
 		}
 		return super.onOptionsItemSelected(item);

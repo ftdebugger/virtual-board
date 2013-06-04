@@ -9,4 +9,6 @@ public interface IMyMotionEvent {
 	void setY(float y);
 	int getMotionEvent();
 	void setMotionEvent(int action);
+	String getPeerName();
+	void setPeerName(String peerName);
 }
