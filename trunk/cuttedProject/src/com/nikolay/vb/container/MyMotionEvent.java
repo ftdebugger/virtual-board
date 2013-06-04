@@ -9,6 +9,15 @@ public class MyMotionEvent implements IMyMotionEvent , Serializable{
 	private static final long serialVersionUID = -475829583782092474L;
 	private float x, y;
 	private int action;
+	private String peerName = android.os.Build.MODEL.replace(" ", "");
+	@Override
+	public String getPeerName() {
+		return peerName;
+	}
+	@Override
+	public void setPeerName(String peerName) {
+		this.peerName = peerName;
+	}
 
 	public MyMotionEvent() {
 		super();
@@ -26,6 +35,7 @@ public class MyMotionEvent implements IMyMotionEvent , Serializable{
 		this.x = event.getX();
 		this.y = event.getY();
 		this.action = event.getAction();
+		this.peerName = android.os.Build.MODEL.replace(" ", "");
 	}
 
 	public int getAction() {

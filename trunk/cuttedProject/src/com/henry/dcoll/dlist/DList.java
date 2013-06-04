@@ -150,4 +150,8 @@ public class DList<T> {
 	 * dListCore.getSpace(), dListCore.getListName(), index); return true; }
 	 * else { return false; } }
 	 */
+
+	public void removeAll() {
+		dListCore.removeAll();
+	}
 }
