@@ -146,18 +146,18 @@ public class MessageSender {
 				DSpaceController.getOwner(), REMOVAL_FROM_LOCAL_LIST_BY_INDEX, space
 						+ ":" + listName + ":" + index);
 		Reply reply = sendMessage(listOwner, data);
-		return Serializer.deserializeObject(reply.getData());
+		return Serializer.<T>deserializeObject(reply.getData());
 	}
+//    @SuppressWarnings("unchecked")
+//	public <T> int sendRemovalFromLocalListByObjectMessage(
+//			String listOwner, String space, String listName, T object) {
+//		RemovalFromLocalListByObjectData<T> data = new RemovalFromLocalListByObjectData<T>(
+//				DSpaceController.getOwner(), REMOVAL_FROM_LOCAL_LIST_BY_OBJECT, space + ":"
+//						+ listName, object);
+//		Reply reply = sendMessage(listOwner, data);
+//		return Serializer.deserializeObject(reply.getData());
+//	}
 
-	public <T> int sendRemovalFromLocalListByObjectMessage(
-			String listOwner, String space, String listName, T object) {
-		RemovalFromLocalListByObjectData<T> data = new RemovalFromLocalListByObjectData<T>(
-				DSpaceController.getOwner(), REMOVAL_FROM_LOCAL_LIST_BY_OBJECT, space + ":"
-						+ listName, object);
-		Reply reply = sendMessage(listOwner, data);
-		return Serializer.deserializeObject(reply.getData());
-	}
-	
 	private Reply sendMessage(String receiver, AbstractData abstractData) {
 		Reply reply = null;
 		IMessageReceiver messageReceiver = peerContainer.getMessageReceiverByPeerName(receiver);
