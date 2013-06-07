@@ -40,26 +40,26 @@ public class ImageContainer implements Serializable, IImageContainer {
 
 	public byte[] getByteArray() {
 		return byteArray;
-	}
-
-	public void setByteArray(byte[] byteArray) {
-		this.byteArray = byteArray;
-	}
-
-//	@Override
-//	public Bitmap getBitmap() {
-//		return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
-//	}
-//
-//	@Override
-//	public void setBitmap(Bitmap bitmap) {
-//		convertBitmap(bitmap);
-//	}
-//	
-//	public void convertBitmap(Bitmap bitmap){
-//		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-//		bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-//		byteArray = stream.toByteArray();
-//	}
-
 }
+
+public void setByteArray(byte[] byteArray) {
+        this.byteArray = byteArray;
+}
+
+@Override
+public Bitmap getBitmap() {
+        return BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+}
+
+@Override
+public void setBitmap(Bitmap bitmap) {
+        convertBitmap(bitmap);
+}
+
+public void convertBitmap(Bitmap bitmap){
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+byteArray = stream.toByteArray();
+}
+
+        }

@@ -106,9 +106,9 @@ public class DList<T> {
 		}
 		return wasDeleted;
 	}
-
+    @SuppressWarnings("unchecked")
 	public T remove(String owner, int index) {
-		T object = messageSender.sendRemovalFromLocalListByIndexMessage(owner,
+		T object = messageSender.<T>sendRemovalFromLocalListByIndexMessage(owner,
 				dListCore.getSpace(), dListCore.getListName(), index);
 		dListCore.removeProxyObject(owner, index);
 		List<String> receivers = dListCore.getRemoteListOwners();
