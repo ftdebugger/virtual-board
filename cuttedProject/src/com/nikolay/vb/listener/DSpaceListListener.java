@@ -5,7 +5,7 @@ import android.util.Log;
 import com.henry.dcoll.dlist.IDListListener;
 import com.nikolay.vb.constants.Constants;
 
-public class DsppaceListListener implements IDListListener {
+public class DSpaceListListener implements IDListListener {
 	
 	
 	@Override
