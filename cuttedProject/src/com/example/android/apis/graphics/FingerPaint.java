@@ -16,30 +16,19 @@
 
 package com.example.android.apis.graphics;
 
-import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
-
-import java.util.List;
-
-import com.example.android.apis.R;
-import com.henry.dcoll.controller.DSpaceController;
-import com.henry.dcoll.dlist.DList;
-import com.henry.dcoll.dlist.IDListListener;
-import com.henry.dcoll.main.IMyEntity;
-import com.henry.dcoll.main.Runner;
-import com.henry.dcoll.main.Runner.MyDListListener;
-import com.henry.dcoll.peer.PeerInfo;
-import com.nikolay.vb.constants.Constants;
-import com.nikolay.vb.container.DrawController;
-import com.nikolay.vb.container.IMyMotionEvent;
-import com.nikolay.vb.container.MyMotionEvent;
-import com.nikolay.vb.container.IDrawController;
-import com.nikolay.vb.factory.HandlerFactory;
-
 import android.content.Context;
-import android.graphics.*;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.BlurMaskFilter;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.EmbossMaskFilter;
+import android.graphics.MaskFilter;
+import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.Path;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -47,8 +36,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.example.android.apis.R;
+import com.henry.dcoll.controller.DSpaceController;
+import com.henry.dcoll.dlist.DList;
+import com.henry.dcoll.dlist.IDListListener;
+import com.henry.dcoll.peer.PeerInfo;
+import com.nikolay.vb.constants.Constants;
+import com.nikolay.vb.container.DrawController;
+import com.nikolay.vb.container.IDrawController;
+import com.nikolay.vb.container.IMyMotionEvent;
+import com.nikolay.vb.container.MyMotionEvent;
+import com.nikolay.vb.factory.HandlerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class FingerPaint extends GraphicsActivity implements
 		ColorPickerDialog.OnColorChangedListener {
