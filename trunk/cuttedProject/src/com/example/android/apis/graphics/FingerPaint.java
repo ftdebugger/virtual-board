@@ -37,6 +37,7 @@ public class FingerPaint extends GraphicsActivity implements
     private MaskFilter mEmboss;
     private MaskFilter mBlur;
     private Boolean erase = false;
+    private Boolean eraseAll = false;
     static {
         Log.i("Test", "System.loadLibrary(\"alljoyn_java\")");
         System.loadLibrary("alljoyn_java");
@@ -102,7 +103,7 @@ public class FingerPaint extends GraphicsActivity implements
         menu.add(0, ERASE_MENU_ID, 0, "Erase").setShortcut('5', 'z');
         menu.add(0, SRCATOP_MENU_ID, 0, "SrcATop").setShortcut('5', 'z');
         menu.add(0, CLEAR_SCREEN_ID, 0, "Clear").setShortcut('6', 'y');
-        menu.add(0, CLEAR_SCREEN_ID, 0, "Clear All").setShortcut('7', 'y');
+        menu.add(0, CLEAR_ALL, 0, "Clear All").setShortcut('7', 'y');
 
         /****
          * Is this the mechanism to extend with filter effects? Intent intent =
@@ -151,15 +152,21 @@ public class FingerPaint extends GraphicsActivity implements
                 mPaint.setAlpha(0x80);
                 return true;
             case CLEAR_SCREEN_ID:
-                // DSpaceController.disconnect();
-                // DSpaceController.connect(android.os.Build.MODEL.replace(" ",
-                // ""));
                 erase = true;
                 return true;
             case CLEAR_ALL:
                 erase = true;
+                eraseAll = true;
                 return true;
         }
         return super.onOptionsItemSelected(item);
     }
+
+	public Boolean getEraseAll() {
+		return eraseAll;
+	}
+
+	public void setEraseAll(Boolean eraseAll) {
+		this.eraseAll = eraseAll;
+	}
 }
